@@ -63,8 +63,8 @@ function renderPlay(ctrl) {
       - ctrl.data.cols * ctrl.data.tileSize / 2;
   var content = [
     renderPlayBackground(ctrl),
-    ...renderRemoveRows(ctrl),
     ...renderTiles(ctrl),
+    ...renderRemoveRows(ctrl),
     ...renderCurrent(ctrl)
   ];
   return h('container', {

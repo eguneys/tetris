@@ -114,7 +114,8 @@ export function init(modules, pApi) {
         oldEndVnode = oldCh[--oldEndIdx];
         newEndVnode = newCh[--newEndIdx];        
       } else {
-        debugger;
+        api.addChildBefore(parentElm, createElm(newStartVnode), oldStartVnode.elm);
+        newStartVnode = newCh[++newStartIdx];
       }
     }
     if (oldStartIdx <= oldEndIdx || newStartIdx <= newEndIdx) {

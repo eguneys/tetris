@@ -83,12 +83,29 @@ export default function test() {
     var vnode1 = h('container', [4, 5].map(spriteNum));
     var vnode2 = h('container', [1,2,3,4,5].map(spriteNum));
     elm = patch(vnode0, vnode1).elm;
-    is('one', elm.children.length, 2);
+    is('two', elm.children.length, 2);
     elm = patch(vnode1, vnode2).elm;
 
     deep_is('many', elm.children.map(texture), [1,2,3,4,5]);
   });
   
+  withVnode('add elements in the middle', vnode0 => {
+    var vnode1 = h('container', [1, 2, 4, 5].map(spriteNum));
+    var vnode2 = h('container', [1,2,3,4,5].map(spriteNum));
+    elm = patch(vnode0, vnode1).elm;
+    is('four', elm.children.length, 4);
+    elm = patch(vnode1, vnode2).elm;
+    deep_is('many', elm.children.map(texture), [1,2,3,4,5]);
+  });
+  withVnode('add elements at begin and end', vnode0 => {
+    var vnode1 = h('container', [2, 3, 4].map(spriteNum));
+    var vnode2 = h('container', [1,2,3,4,5].map(spriteNum));
+    elm = patch(vnode0, vnode1).elm;
+    is('four', elm.children.length, 3);
+    elm = patch(vnode1, vnode2).elm;
+    deep_is('many', elm.children.map(texture), [1,2,3,4,5]);
+  });
+
 }
 
 function withVnode(msg, f) {

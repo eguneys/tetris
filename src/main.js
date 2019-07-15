@@ -13,7 +13,6 @@ import view from './view';
 const patch = init([]);
 
 export function app(element, config) {
-
   let state = defaults();
   configure(state, config || {});
 
