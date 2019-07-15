@@ -1,8 +1,16 @@
+function Point() {
+  this.set = (x, y) => {
+    this.x = x;
+    this.y = y;
+  };
+}
+
 class TestDisplayElement {
 
   constructor() {
     this.children = [];
     this.parent = null;
+    this.scale = new Point();
   }
 
   addChild(child) {

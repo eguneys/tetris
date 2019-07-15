@@ -57,9 +57,15 @@ export default function Controller(state, redraw) {
   };
 
   this.nextBlock = () => {
+    if (!this.data.next) {
+      this.data.next = randomShapeKey();
+    }
+
     const top = -2;
     const middle = this.data.cols / 2 - 2;
-    const shape = getShape(randomShapeKey());
+    const shape = getShape(this.data.next);
+
+    this.data.next = undefined;
     this.data.current = {
       shape,
       x: middle,
@@ -215,7 +221,6 @@ export default function Controller(state, redraw) {
   };
 
   const removeBlocks = () => {
-    this.data.removeRows = [];
     for (var row of util.allRows()) {
       const cols = util.allCols(row);
 
@@ -229,18 +234,23 @@ export default function Controller(state, redraw) {
       }
     }
 
-    if (this.data.removeRows.length > 0) {
+    const removeRows = this.data.removeRows.slice();
 
-      const fallenRow = this.data.removeRows[this.data.removeRows.length - 1];
-      const fallTo = this.data.removeRows[0];
-      const fallAmount = fallenRow - fallTo + 1;
+    while(removeRows.length > 0) {
 
-      for (row of this.data.removeRows) {
-        const cols = util.allCols(row);
-        for (var pos of cols) {
-          const key = pos2key(pos);
-          delete this.data.tiles[key];
-        }
+      const fallenRow = removeRows[removeRows.length - 1];
+      const fallTo = fallenRow;
+      const fallAmount = 1;
+      
+      removeRows.pop();
+      for (var i in removeRows) {
+        removeRows[i]++;
+      }
+
+      const cols = util.allCols(fallenRow);
+      for (var pos of cols) {
+        const key = pos2key(pos);
+        delete this.data.tiles[key];
       }
 
       const sortedTiles = Object.keys(this.data.tiles)
@@ -255,7 +265,11 @@ export default function Controller(state, redraw) {
         if (pos[1] < fallenRow) {
           const toPos = addPos(pos, [0, fallAmount]);
           const toKey = pos2key(toPos);
-          this.data.tiles[toKey] = this.data.tiles[key];
+          this.data.tiles[toKey] = {
+            key: toKey,
+            color: this.data.tiles[key].color,
+            anim: key
+          };
           this.data.tiles[key] = undefined;
           delete this.data.tiles[key];
         }
@@ -264,7 +278,7 @@ export default function Controller(state, redraw) {
   };
 
 
-  const withDelay = (fn, delay) => {
+  const withDelay = (fn, delay, updateFn) => {
     let lastUpdate = 0;
 
     return (delta) => {
@@ -272,6 +286,9 @@ export default function Controller(state, redraw) {
       if (lastUpdate >= (delay / 16)) {
         fn();
         lastUpdate = 0;
+      } else {
+        if (updateFn)
+          updateFn(lastUpdate / (delay / 16));
       }
     };
   };
@@ -328,11 +345,32 @@ export default function Controller(state, redraw) {
     }
   };
 
+  const maybeClearRemovedBlocks = (() => {
+    let delayFn;
+    
+    return (delta) => {
+      if (this.data.removeRows.length > 0) {
+        if (!delayFn) {
+          delayFn = withDelay(() => {
+            for (var key of Object.keys(this.data.tiles)) {
+              delete this.data.tiles[key].anim;
+            }
+            this.data.removeRows = [];
+          }, 300, (progress) => {
+            this.animProgress = progress;
+          });
+        }
+        delayFn(delta);
+      }
+    };
+  })();
+
   this.update = (delta) => {
     maybeNextBlock();
     maybeFallBlock(delta);
     maybeCommitBlock(delta);
     maybeRemoveBlocks();
+    maybeClearRemovedBlocks(delta);
     maybeUsermove();
   };
 }

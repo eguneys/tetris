@@ -5,9 +5,16 @@ import { pos2key, key2pos } from './util';
 function renderTile(ctrl, key, tile) {
   const width = ctrl.data.tileSize,
         height = ctrl.data.tileSize;
-  const pos = key2pos(key),
+  let pos = key2pos(key),
         x = pos[0] * width,
         y = pos[1] * height;
+
+  const anim = tile.anim ? key2pos(tile.anim) : null;
+
+  if (anim) {
+    y = anim[1] * height;
+    y -= -(pos[1] - anim[1]) * height * ctrl.animProgress;
+  }
 
   return h('sprite', {
     texture: ctrl.data.textures.test,
@@ -35,13 +42,22 @@ function renderTiles(ctrl) {
 }
 
 function renderRemoveRow(ctrl, row) {
-  return h('sprite', {
+  const attrs = {
     texture: ctrl.data.textures.whiteBackground,
-    x: 0,
+    x: (ctrl.data.cols / 2) * ctrl.data.tileSize,
     y: row * ctrl.data.tileSize,
+    anchor: { x: 0.5, y: 0.5 },
     width: ctrl.data.cols * ctrl.data.tileSize,
     height: ctrl.data.tileSize
-  });
+  };
+
+  if (ctrl.animProgress) {
+    const scale = (1 + (0.1 * ctrl.animProgress));
+    attrs.width *= scale;
+    attrs.height *= scale;
+    attrs.alpha = 0.2 + (0.8 * (1 - ctrl.animProgress));
+  }
+  return h('sprite', attrs);
 }
 
 function renderRemoveRows(ctrl) {
@@ -64,7 +80,7 @@ function renderPlay(ctrl) {
   var content = [
     renderPlayBackground(ctrl),
     ...renderTiles(ctrl),
-    // ...renderRemoveRows(ctrl),
+    ...renderRemoveRows(ctrl),
     ...renderCurrent(ctrl)
   ];
   return h('container', {

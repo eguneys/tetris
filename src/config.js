@@ -1,5 +1,14 @@
+import { read as fenRead } from './fen';
+
 export function configure(state, config) {
   merge(state, config);
+
+  if (config.fen) {
+    const { tiles, next } = fenRead(config.fen);
+    state.tiles = tiles;
+    state.next = next;
+  }
+
 }
 
 function merge(base, extend) {

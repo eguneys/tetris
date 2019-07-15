@@ -33,13 +33,17 @@ export default function test() {
       x: 10,
       y: 11,
       width: 1,
-      height: 1
+      height: 1,
+      scale: { x: 2, y: 2 },
+      alpha: 2
     })).elm;
 
     is('x', elm.x, 10);
     is('y', elm.y, 11);
     is('w', elm.width, 1);
     is('h', elm.height, 1);
+    is('s', elm.scale.x, 2);
+    is('o', elm.alpha, 2);
 
   });
 

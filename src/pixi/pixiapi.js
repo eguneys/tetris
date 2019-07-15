@@ -45,6 +45,9 @@ function setDataContent(elm, data) {
   elm.y = data.y || 0;
   if (data.width) elm.width = data.width;
   if (data.height) elm.height = data.height;
+  if (data.scale) elm.scale.set(data.scale.x, data.scale.y);
+  if (data.alpha) elm.alpha = data.alpha;
+  if (data.anchor) elm.anchor = data.anchor;
 }
 
 export const makePixiApi = (createElement) => ({

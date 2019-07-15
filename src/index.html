@@ -34,7 +34,11 @@
 
   <script>
 
-   Tetris(document.getElementById('app'), {});
+   const testFen1 = '10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/8gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
+
+   Tetris(document.getElementById('app'), {
+     fen: testFen1
+   });
 
    Tetris.test();
    
