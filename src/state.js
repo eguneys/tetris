@@ -7,6 +7,7 @@ export function defaults() {
     height: 480,
     rows: rows,
     cols: cols,
+    tiles: {},
     tileSize: 20
   };
 }

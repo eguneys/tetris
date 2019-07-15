@@ -28,6 +28,12 @@ function renderCurrent(ctrl) {
   return content;
 }
 
+function renderTiles(ctrl) {
+  const tiles = ctrl.data.tiles;
+
+  return Object.keys(tiles).map(key => renderTile(ctrl, tiles[key]));
+}
+
 function renderPlayBackground(ctrl) {
   return h('sprite', {
     texture: ctrl.data.textures.playBackground,
@@ -41,6 +47,7 @@ function renderPlay(ctrl) {
       - ctrl.data.cols * ctrl.data.tileSize / 2;
   var content = [
     renderPlayBackground(ctrl),
+    ...renderTiles(ctrl),
     ...renderCurrent(ctrl)
   ];
   return h('container', {

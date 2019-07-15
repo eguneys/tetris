@@ -7,6 +7,16 @@ function addPos(pos1, pos2) {
           pos1[1] + pos2[1]];
 }
 
+function outOfBottom(pos, cols, rows) {
+  // return pos[0] < 0 || pos[1] < 0 ||
+  //   pos[0] >= cols || pos[1] >= rows;
+  return pos[0] >= cols || pos[1] >= rows;
+}
+
+function outOfTop(pos) {
+  return pos[0] < 0 || pos[1] < 0;
+}
+
 export default function Controller(state, redraw) {
   const d = this.data = state;
 
@@ -15,10 +25,13 @@ export default function Controller(state, redraw) {
     return shapeToPosMap(shape).map(pos => {
       pos = addPos(pos, [x, y]);
       const key = pos2key(pos);
+      if(outOfTop(pos)) {
+        return null;
+      }
       return {
         key
       };      
-    });
+    }).filter(_ => !!_);
   };
 
   const placeBlock = () => {
@@ -31,7 +44,7 @@ export default function Controller(state, redraw) {
   };
 
   this.nextBlock = () => {
-    const top = 0;
+    const top = -2;
     const middle = this.data.cols / 2 - 2;
     const shape = getShape(randomShapeKey());
     this.data.current = {
@@ -52,15 +65,20 @@ export default function Controller(state, redraw) {
 
   const checkCollision = () => {
     const data = this.data;
-    function outOfBounds(pos) {
-      return pos[0] < 0 || pos[1] < 0 ||
-        pos[0] >= data.cols || pos[1] >= data.rows;
+    function overlapCurrent(key) {
+      if (data.tiles[key]) {
+        return true;
+      }
+      return false;
     }
 
     for (var key of Object.keys(this.data.current.tiles)) {
       var tile = this.data.current.tiles[key];
       var pos = key2pos(tile.key);
-      if (outOfBounds(pos)) {
+      if (outOfBottom(pos, this.data.cols, this.data.rows)) {
+        return true;
+      }
+      if (overlapCurrent(tile.key)) {
         return true;
       }
     }
@@ -75,6 +93,15 @@ export default function Controller(state, redraw) {
       placeBlock();
       this.commitBlock = true;
     }
+  };
+
+  const commitBlock = () => {
+    for (var tile of this.data.current.tiles) {
+      this.data.tiles[tile.key] = tile;
+    }
+
+    this.data.current = undefined;
+    this.commitBlock = false;
   };
 
 
@@ -96,10 +123,7 @@ export default function Controller(state, redraw) {
     return (delta) => {
       if (this.commitBlock) {
         if (!commitFn) {
-          commitFn = withDelay(() => {
-            this.data.current = undefined;
-            this.commitBlock = false;
-          }, 500);
+          commitFn = withDelay(commitBlock, 500);
         }
         return commitFn(delta);
       } else {
