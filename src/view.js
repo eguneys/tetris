@@ -2,10 +2,10 @@ import { h } from './pixi/snabbpixi';
 
 import { pos2key, key2pos } from './util';
 
-function renderTile(ctrl, tile) {
+function renderTile(ctrl, key, tile) {
   const width = ctrl.data.tileSize,
         height = ctrl.data.tileSize;
-  const pos = key2pos(tile.key),
+  const pos = key2pos(key),
         x = pos[0] * width,
         y = pos[1] * height;
 
@@ -22,7 +22,7 @@ function renderCurrent(ctrl) {
   }
 
   const content = cur.tiles.map(tile =>
-    renderTile(ctrl, tile)
+    renderTile(ctrl, tile.key, tile)
   );
 
   return content;
@@ -31,7 +31,7 @@ function renderCurrent(ctrl) {
 function renderTiles(ctrl) {
   const tiles = ctrl.data.tiles;
 
-  return Object.keys(tiles).map(key => renderTile(ctrl, tiles[key]));
+  return Object.keys(tiles).map(key => renderTile(ctrl, key, tiles[key]));
 }
 
 function renderRemoveRow(ctrl, row) {
@@ -64,7 +64,7 @@ function renderPlay(ctrl) {
   var content = [
     renderPlayBackground(ctrl),
     ...renderTiles(ctrl),
-    ...renderRemoveRows(ctrl),
+    // ...renderRemoveRows(ctrl),
     ...renderCurrent(ctrl)
   ];
   return h('container', {

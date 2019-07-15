@@ -192,6 +192,19 @@ export default function Controller(state, redraw) {
     }
   };
 
+  const fastCommit = () => {
+    if (!this.data.current)
+      return;
+
+    moveBlockBase([0, 1]);
+    placeBlock();
+    if (checkCollision()) {
+      this.commitBlock = true;
+    }
+    undoMoveBlockBase([0, 1]);
+    placeBlock();
+  };
+
   const commitBlock = () => {
     for (var tile of this.data.current.tiles) {
       this.data.tiles[tile.key] = tile;
@@ -202,6 +215,7 @@ export default function Controller(state, redraw) {
   };
 
   const removeBlocks = () => {
+    this.data.removeRows = [];
     for (var row of util.allRows()) {
       const cols = util.allCols(row);
 
@@ -215,7 +229,38 @@ export default function Controller(state, redraw) {
       }
     }
 
-    
+    if (this.data.removeRows.length > 0) {
+
+      const fallenRow = this.data.removeRows[this.data.removeRows.length - 1];
+      const fallTo = this.data.removeRows[0];
+      const fallAmount = fallenRow - fallTo + 1;
+
+      for (row of this.data.removeRows) {
+        const cols = util.allCols(row);
+        for (var pos of cols) {
+          const key = pos2key(pos);
+          delete this.data.tiles[key];
+        }
+      }
+
+      const sortedTiles = Object.keys(this.data.tiles)
+            .sort((k1, k2) => {
+              const p1 = key2pos(k1),
+                    p2 = key2pos(k2);
+              return p2[1] - p1[1];
+            });
+
+      for (var key of sortedTiles) {
+        const pos = key2pos(key);
+        if (pos[1] < fallenRow) {
+          const toPos = addPos(pos, [0, fallAmount]);
+          const toKey = pos2key(toPos);
+          this.data.tiles[toKey] = this.data.tiles[key];
+          this.data.tiles[key] = undefined;
+          delete this.data.tiles[key];
+        }
+      }
+    }
   };
 
 
@@ -240,7 +285,7 @@ export default function Controller(state, redraw) {
     return (delta) => {
       if (this.commitBlock) {
         if (!commitFn) {
-          commitFn = withDelay(commitBlock, 500);
+          commitFn = withDelay(commitBlock, 300);
         }
         return commitFn(delta);
       } else {
@@ -270,6 +315,7 @@ export default function Controller(state, redraw) {
       break;
     case Moves.down:
       moveBlock([0, 1]);
+      fastCommit();
       break;
     default:
     }

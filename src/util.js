@@ -32,7 +32,7 @@ export function pos2key(pos) {
 };
 
 export function key2pos(key) {
-  return key.split('.');
+  return key.split('.').map(_ => parseInt(_));
 }
 
 export function shapeToPosMap(shape) {
