@@ -1,10 +1,14 @@
-import { key2pos, pos2key, getShape, shapeToPosMap, randomShapeKey } from './util';
+import { key2pos, pos2key, getShape, rotateShape, shapeToPosMap, randomShapeKey } from './util';
 
 function now() { return Date.now(); }
 
 function addPos(pos1, pos2) {
   return [pos1[0] + pos2[0],
           pos1[1] + pos2[1]];
+}
+
+function outOfBounds(pos, cols, rows) {
+  return pos[0] < 0 || pos[0] >= cols || pos[1] >= rows;
 }
 
 function outOfBottom(pos, cols, rows) {
@@ -14,8 +18,15 @@ function outOfBottom(pos, cols, rows) {
 }
 
 function outOfTop(pos) {
-  return pos[0] < 0 || pos[1] < 0;
+  return pos[1] < 0;
 }
+
+export const Moves = {
+  rotate: 'rotate',
+  down: 'down',
+  left: 'left',
+  right: 'right'
+};
 
 export default function Controller(state, redraw) {
   const d = this.data = state;
@@ -38,8 +49,8 @@ export default function Controller(state, redraw) {
     if (this.data.current) {
       this.data.current.tiles = blockTiles(
         this.data.current.shape,
-        this.data.current.x,
-        this.data.current.y);
+        this.data.current.x + this.data.current.rotateX,
+        this.data.current.y + this.data.current.rotateY);
     }
   };
 
@@ -50,17 +61,15 @@ export default function Controller(state, redraw) {
     this.data.current = {
       shape,
       x: middle,
-      y: top
+      y: top,
+      rotateX: 0,
+      rotateY: 0
     };
     placeBlock();
   };
 
-  const fallBlockBase = () => {
-    this.data.current.y++;
-  };
-
-  const undoFallBlockBase = () => {
-    this.data.current.y--;
+  this.move = (move) => {
+    this.userMove = move;
   };
 
   const checkCollision = () => {
@@ -75,7 +84,7 @@ export default function Controller(state, redraw) {
     for (var key of Object.keys(this.data.current.tiles)) {
       var tile = this.data.current.tiles[key];
       var pos = key2pos(tile.key);
-      if (outOfBottom(pos, this.data.cols, this.data.rows)) {
+      if (outOfBounds(pos, this.data.cols, this.data.rows)) {
         return true;
       }
       if (overlapCurrent(tile.key)) {
@@ -85,6 +94,14 @@ export default function Controller(state, redraw) {
     return false;
   };
 
+  const fallBlockBase = () => {
+    this.data.current.y++;
+  };
+
+  const undoFallBlockBase = () => {
+    this.data.current.y--;
+  };
+
   const fallBlock = () => {
     fallBlockBase();
     placeBlock();
@@ -92,6 +109,84 @@ export default function Controller(state, redraw) {
       undoFallBlockBase();
       placeBlock();
       this.commitBlock = true;
+    }
+  };
+
+  const rotateBlockBase = () => {
+    this.data.current.shape = rotateShape(this.data.current.shape);
+    this.commitBlock = false;
+  };
+
+  const rotateBlock = () => {
+    if (!this.data.current)
+      return;
+    rotateBlockBase();
+    this.data.current.rotateY = 0;
+    this.data.current.rotateX = 0;
+    placeBlock();
+    if (checkCollision()) {
+      let fixed = false;
+      
+      for (var y = 0; y <= 2; y++) {
+        this.data.current.rotateX = 0;
+        this.data.current.rotateY = -y;
+        if (!fixed) {
+          placeBlock();
+          if ((fixed = !checkCollision())) {
+            break;
+          }
+        }
+
+        if (!fixed) {
+          placeBlock();
+
+          for (var i = 0; i < 2; i++) {
+            this.data.current.rotateX++;
+            placeBlock();
+            if ((fixed = !checkCollision())) {
+              break;
+            }
+          }
+        }
+        if (!fixed) {
+          this.data.current.rotateX = 0;
+          placeBlock();
+          for (i = 0; i < 2; i++) {
+            this.data.current.rotateX--;
+            placeBlock();
+            if ((fixed = !checkCollision())) {
+              break;
+            }
+          }
+        }
+        if (fixed) break;
+      }
+
+      if (!fixed) {
+        throw new Error("invalid rotate collision");
+      }
+    }
+  };
+
+  const moveBlockBase = (v) => {
+    this.data.current.x += v[0];
+    this.data.current.y += v[1];
+  };
+
+  const undoMoveBlockBase = (v) => {
+    this.data.current.x -= v[0];
+    this.data.current.y -= v[1];
+  };
+
+  const moveBlock = (v) => {
+    if (!this.data.current)
+      return;
+
+    moveBlockBase(v);
+    placeBlock();
+    if (checkCollision()) {
+      undoMoveBlockBase(v);
+      placeBlock();
     }
   };
 
@@ -140,6 +235,25 @@ export default function Controller(state, redraw) {
     }
   };
 
+  const maybeUsermove = () => {
+    switch (this.userMove) {
+    case Moves.rotate:
+      rotateBlock();
+      break;
+    case Moves.left:
+      moveBlock([-1, 0]);
+      break;
+    case Moves.right:
+      moveBlock([1, 0]);
+      break;
+    case Moves.down:
+      moveBlock([0, 1]);
+      break;
+    default:
+    }
+    this.userMove = undefined;
+  };
+
   const maybeFallBlock = withDelay(fallBlock,
                                    1000 * this.data.speed);
 
@@ -147,5 +261,6 @@ export default function Controller(state, redraw) {
     maybeNextBlock();
     maybeFallBlock(delta);
     maybeCommitBlock(delta);
+    maybeUsermove();
   };
 }

@@ -12,11 +12,11 @@ export const allPos = (function() {
 })();
 
 export function pos2key(pos) {
-  return pos[1] * cols + pos[0];
+  return pos[0] + '.' + pos[1];
 };
 
 export function key2pos(key) {
-  return [key % cols, Math.floor(key / cols)];
+  return key.split('.');
 }
 
 export function shapeToPosMap(shape) {
@@ -63,22 +63,48 @@ export const allShapesString = {
 .
 .
 ..
+`, `
+  .
+...
+`, `
+..
+ .
+ .
+`,`
+...
+.
 `],
   'r': [`
  .
  .
 ..
+`,`
+...
+  .
+`,`
+..
+.
+.
+`,`
+.
+...
 `],
   'i': [`
-.
-.
-.
-.
-`],
+ .
+ .
+ .
+ .
+`,`
+
+....
+`,],
   's': [`
 .
 ..
  .
+`,`
+ ..
+..
 `],
   'o': [`
 ..
@@ -86,6 +112,17 @@ export const allShapesString = {
 `],
   't': [`
 ...
+ .
+`, `
+.
+..
+.
+`, `
+ .
+...
+`, `
+ .
+..
  .
 `]
 };

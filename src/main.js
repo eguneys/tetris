@@ -3,6 +3,8 @@ import { init } from './pixi/snabbpixi';
 
 import sprites from './sprites';
 
+import * as events from './events';
+
 import { configure } from './config';
 import { defaults } from './state'; 
 import makeCtrl from './ctrl';
@@ -38,6 +40,8 @@ export function app(element, config) {
       state.redraw = redraw;
 
       ctrl = new makeCtrl(state, redraw);
+
+      events.bindDocument(ctrl);
 
       const blueprint = view(ctrl);
       vnode = patch(app.stage, blueprint);
