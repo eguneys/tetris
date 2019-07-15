@@ -1,4 +1,4 @@
-import { pos2key, getShape, shapeToPosMap, randomShapeKey } from './util';
+import { key2pos, pos2key, getShape, shapeToPosMap, randomShapeKey } from './util';
 
 function now() { return Date.now(); }
 
@@ -10,11 +10,11 @@ function addPos(pos1, pos2) {
 export default function Controller(state, redraw) {
   const d = this.data = state;
 
+
   const blockTiles = (shape, x, y) => {
     return shapeToPosMap(shape).map(pos => {
       pos = addPos(pos, [x, y]);
       const key = pos2key(pos);
-
       return {
         key
       };      
@@ -32,41 +32,96 @@ export default function Controller(state, redraw) {
 
   this.nextBlock = () => {
     const top = 0;
-    const middle = 8;
+    const middle = this.data.cols / 2 - 2;
     const shape = getShape(randomShapeKey());
     this.data.current = {
       shape,
       x: middle,
       y: top
     };
+    placeBlock();
   };
 
-  this.fallBlock = () => {
+  const fallBlockBase = () => {
     this.data.current.y++;
   };
 
-  this.maybeNextBlock = () => {
+  const undoFallBlockBase = () => {
+    this.data.current.y--;
+  };
+
+  const checkCollision = () => {
+    const data = this.data;
+    function outOfBounds(pos) {
+      return pos[0] < 0 || pos[1] < 0 ||
+        pos[0] >= data.cols || pos[1] >= data.rows;
+    }
+
+    for (var key of Object.keys(this.data.current.tiles)) {
+      var tile = this.data.current.tiles[key];
+      var pos = key2pos(tile.key);
+      if (outOfBounds(pos)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const fallBlock = () => {
+    fallBlockBase();
+    placeBlock();
+    if (checkCollision()) {
+      undoFallBlockBase();
+      placeBlock();
+      this.commitBlock = true;
+    }
+  };
+
+
+  const withDelay = (fn, delay) => {
+    let lastUpdate = 0;
+
+    return (delta) => {
+      lastUpdate += delta;
+      if (lastUpdate >= (delay / 16)) {
+        fn();
+        lastUpdate = 0;
+      }
+    };
+  };
+
+  const maybeCommitBlock = (() => {
+    let commitFn;
+    
+    return (delta) => {
+      if (this.commitBlock) {
+        if (!commitFn) {
+          commitFn = withDelay(() => {
+            this.data.current = undefined;
+            this.commitBlock = false;
+          }, 500);
+        }
+        return commitFn(delta);
+      } else {
+        commitFn = undefined;
+        return (() => {})();
+      }
+    };
+  })();
+
+  const maybeNextBlock = () => {
     if (this.data.current) {
     } else {
       this.nextBlock();
     }
   };
 
-  this.maybeFallBlock = (() => {
-    let lastUpdate = 0;
-
-    return (delta) => {
-      lastUpdate += delta;
-      if (lastUpdate >= (1000 * this.data.speed / 16)) {
-        this.fallBlock();
-        lastUpdate = 0;
-      }
-    };
-  })();
+  const maybeFallBlock = withDelay(fallBlock,
+                                   1000 * this.data.speed);
 
   this.update = (delta) => {
-    this.maybeNextBlock();
-    this.maybeFallBlock(delta);
-    placeBlock();
+    maybeNextBlock();
+    maybeFallBlock(delta);
+    maybeCommitBlock(delta);
   };
 }

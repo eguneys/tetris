@@ -16,7 +16,8 @@ export function app(element, config) {
   configure(state, config || {});
 
   const app = new PIXI.Application({
-    
+    width: state.width,
+    height: state.height
   });
 
   element.appendChild(app.view);

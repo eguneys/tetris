@@ -1,5 +1,5 @@
-const cols = 20,
-      rows = 50;
+export const cols = 10;
+export const rows = 20;
 
 export const allPos = (function() {
   const res = [];
@@ -12,11 +12,11 @@ export const allPos = (function() {
 })();
 
 export function pos2key(pos) {
-  return pos[0] * cols + pos[1];
+  return pos[1] * cols + pos[0];
 };
 
 export function key2pos(key) {
-  return [Math.floor(key / cols), key % cols];
+  return [key % cols, Math.floor(key / cols)];
 }
 
 export function shapeToPosMap(shape) {

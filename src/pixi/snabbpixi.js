@@ -24,6 +24,13 @@ export function init(modules) {
     return vnode('app', {}, [], app);
   }
 
+  function createRmCb(childElm) {
+    return function rmCb() {
+      const parent = api.parentNode(childElm);
+      api.removeChild(parent, childElm);
+    };
+  }
+
   function createElm(vnode) {
     let i;
     let children = vnode.children,
@@ -60,6 +67,21 @@ export function init(modules) {
     }
   }
 
+  function removeVnodes(parentElm,
+                        vnodes,
+                        startIdx,
+                        endIdx) {
+    for (; startIdx <= endIdx; ++startIdx) {
+      let i, rm, ch = vnodes[startIdx];
+      if (ch !== null) {
+        if (isDef(ch.sel)) {
+          rm = createRmCb(ch.elm);
+          rm();
+        }
+      }
+    }
+  }
+
   function updateChildren(parentElm,
                           oldCh,
                           newCh) {
@@ -87,15 +109,17 @@ export function init(modules) {
         newStartVnode = newCh[++newStartIdx];
       } else if (sameVnode(oldEndVnode, newEndVnode)) {
         patchVnode(oldEndVnode, newEndVnode);
-        oldEndVnode = oldCh[++oldEndIdx];
-        newEndVnode = newCh[++newEndIdx];        
+        oldEndVnode = oldCh[--oldEndIdx];
+        newEndVnode = newCh[--newEndIdx];        
+      } else {
+        debugger;
       }
     }
     if (oldStartIdx <= oldEndIdx || newStartIdx <= newEndIdx) {
       if (oldStartIdx > oldEndIdx) {
         addVnodes(parentElm, newCh, newStartIdx, newEndIdx);
       } else {
-        
+        removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);
       }
     }
   }

@@ -5,8 +5,21 @@ export default function sprites() {
 
   tss['test'] = testTexture;
 
+  tss['background'] = bgTexture('#ccc');
+
+  tss['playBackground'] = bgTexture('#000');
+
   return tss;
 }
+
+const bgTexture = (color) => {
+  return withCanvasTexture(256, 256, (w, h, canvas, ctx) => {
+
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, w, h);
+    return canvas;
+  });
+};
 
 const testTexture = withCanvasTexture(256, 256, (w, h, canvas, ctx) => {
   const border = 10;

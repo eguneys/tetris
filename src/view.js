@@ -3,8 +3,8 @@ import { h } from './pixi/snabbpixi';
 import { pos2key, key2pos } from './util';
 
 function renderTile(ctrl, tile) {
-  const width = 32,
-        height = 32;
+  const width = ctrl.data.tileSize,
+        height = ctrl.data.tileSize;
   const pos = key2pos(tile.key),
         x = pos[0] * width,
         y = pos[1] * height;
@@ -28,9 +28,39 @@ function renderCurrent(ctrl) {
   return content;
 }
 
+function renderPlayBackground(ctrl) {
+  return h('sprite', {
+    texture: ctrl.data.textures.playBackground,
+    width: ctrl.data.cols * ctrl.data.tileSize,
+    height: ctrl.data.rows * ctrl.data.tileSize
+  });
+}
+
+function renderPlay(ctrl) {
+  var middle = ctrl.data.width / 2 
+      - ctrl.data.cols * ctrl.data.tileSize / 2;
+  var content = [
+    renderPlayBackground(ctrl),
+    ...renderCurrent(ctrl)
+  ];
+  return h('container', {
+    x: middle,
+    y: ctrl.data.tileSize
+  }, content);
+}
+
+function renderBackground(ctrl) {
+  return h('sprite', {
+    texture: ctrl.data.textures.background,
+    width: ctrl.data.width,
+    height: ctrl.data.height
+  });
+}
+
 export default function(ctrl) {
   var content = [
-    ...renderCurrent(ctrl)
+    renderBackground(ctrl),
+    renderPlay(ctrl)
   ];
 
   return h('container', content);

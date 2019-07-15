@@ -19,6 +19,14 @@ function createElement(tag, texture) {
   }
 }
 
+function parentNode(child) {
+  return child.parent;
+}
+
+function removeChild(node, child) {
+  node.removeChild(child);
+}
+
 function addChild(node, child) {
   node.addChild(child);
 }
@@ -32,7 +40,9 @@ function setDataContent(elm, data) {
 
 export const pixiApi = {
   createElement,
+  parentNode,
   addChild,
+  removeChild,
   setDataContent
 };
 
