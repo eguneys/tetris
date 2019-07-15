@@ -34,6 +34,22 @@ function renderTiles(ctrl) {
   return Object.keys(tiles).map(key => renderTile(ctrl, tiles[key]));
 }
 
+function renderRemoveRow(ctrl, row) {
+  return h('sprite', {
+    texture: ctrl.data.textures.whiteBackground,
+    x: 0,
+    y: row * ctrl.data.tileSize,
+    width: ctrl.data.cols * ctrl.data.tileSize,
+    height: ctrl.data.tileSize
+  });
+}
+
+function renderRemoveRows(ctrl) {
+  const rows = ctrl.data.removeRows;
+
+  return rows.map(_ => renderRemoveRow(ctrl, _));
+}
+
 function renderPlayBackground(ctrl) {
   return h('sprite', {
     texture: ctrl.data.textures.playBackground,
@@ -47,6 +63,7 @@ function renderPlay(ctrl) {
       - ctrl.data.cols * ctrl.data.tileSize / 2;
   var content = [
     renderPlayBackground(ctrl),
+    ...renderRemoveRows(ctrl),
     ...renderTiles(ctrl),
     ...renderCurrent(ctrl)
   ];

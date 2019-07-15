@@ -31,6 +31,15 @@ function addChild(node, child) {
   node.addChild(child);
 }
 
+function addChildBefore(node, child, before) {
+  if (before) {
+    before = node.children.indexOf(before);
+    node.addChildAt(child, before);
+  } else {
+    node.addChild(child);
+  }
+}
+
 function setDataContent(elm, data) {
   elm.x = data.x || 0;
   elm.y = data.y || 0;
@@ -38,12 +47,13 @@ function setDataContent(elm, data) {
   if (data.height) elm.height = data.height;
 }
 
-export const pixiApi = {
+export const makePixiApi = (createElement) => ({
   createElement,
   parentNode,
   addChild,
+  addChildBefore,
   removeChild,
   setDataContent
-};
+});
 
-export default pixiApi;
+export default makePixiApi(createElement);

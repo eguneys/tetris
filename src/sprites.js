@@ -9,6 +9,8 @@ export default function sprites() {
 
   tss['playBackground'] = bgTexture('#000');
 
+  tss['whiteBackground'] = bgTexture('#fff');
+
   return tss;
 }
 

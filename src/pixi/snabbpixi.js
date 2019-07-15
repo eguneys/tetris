@@ -17,8 +17,8 @@ function isVnode(vnode) {
   return vnode.sel !== undefined;
 }
 
-export function init(modules) {
-  const api = pixiApi;
+export function init(modules, pApi) {
+  const api = pApi !== undefined? pApi : pixiApi;
 
   function emptyNodeAt(app) {
     return vnode('app', {}, [], app);
@@ -56,13 +56,14 @@ export function init(modules) {
   }
 
   function addVnodes(parentElm,
+                     before,
                      vnodes,
                      startIdx,
                      endIdx) {
     for (;startIdx <= endIdx; ++startIdx) {
       const ch = vnodes[startIdx];
       if (ch !== null) {
-        api.addChild(parentElm, createElm(ch));
+        api.addChildBefore(parentElm, createElm(ch), before);
       }
     }
   }
@@ -92,6 +93,7 @@ export function init(modules) {
     let newEndIdx = newCh.length - 1;
     let newStartVnode = newCh[0];
     let newEndVnode = newCh[newEndIdx];
+    let before;
 
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
@@ -117,7 +119,8 @@ export function init(modules) {
     }
     if (oldStartIdx <= oldEndIdx || newStartIdx <= newEndIdx) {
       if (oldStartIdx > oldEndIdx) {
-        addVnodes(parentElm, newCh, newStartIdx, newEndIdx);
+        before = newCh[newEndIdx + 1] == null ? undefined : newCh[newEndIdx + 1].elm;
+        addVnodes(parentElm, before, newCh, newStartIdx, newEndIdx);
       } else {
         removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);
       }

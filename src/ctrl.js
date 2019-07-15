@@ -1,5 +1,7 @@
 import { key2pos, pos2key, getShape, rotateShape, shapeToPosMap, randomShapeKey } from './util';
 
+import * as util from './util';
+
 function now() { return Date.now(); }
 
 function addPos(pos1, pos2) {
@@ -199,6 +201,23 @@ export default function Controller(state, redraw) {
     this.commitBlock = false;
   };
 
+  const removeBlocks = () => {
+    for (var row of util.allRows()) {
+      const cols = util.allCols(row);
+
+      const isFull = cols.every(pos => {
+        var key = pos2key(pos);
+        return !!this.data.tiles[key];
+      });
+
+      if (isFull) {
+        this.data.removeRows.push(row);
+      }
+    }
+
+    
+  };
+
 
   const withDelay = (fn, delay) => {
     let lastUpdate = 0;
@@ -211,6 +230,9 @@ export default function Controller(state, redraw) {
       }
     };
   };
+
+  const maybeFallBlock = withDelay(fallBlock,
+                                   1000 * this.data.speed);
 
   const maybeCommitBlock = (() => {
     let commitFn;
@@ -254,13 +276,17 @@ export default function Controller(state, redraw) {
     this.userMove = undefined;
   };
 
-  const maybeFallBlock = withDelay(fallBlock,
-                                   1000 * this.data.speed);
+  const maybeRemoveBlocks = () => {
+    if (!this.data.current) {
+      removeBlocks();
+    }
+  };
 
   this.update = (delta) => {
     maybeNextBlock();
     maybeFallBlock(delta);
     maybeCommitBlock(delta);
+    maybeRemoveBlocks();
     maybeUsermove();
   };
 }

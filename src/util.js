@@ -11,6 +11,22 @@ export const allPos = (function() {
   return res;
 })();
 
+export const allCols = (row) => {
+  const res = [];
+  for (var i = 0; i < cols; i++) {
+    res.push([i, row]);
+  }
+  return res;
+};
+
+export const allRows = () => {
+  const res = [];
+  for (var i = 0; i < rows; i++) {
+    res.push(i);
+  }
+  return res;
+};
+
 export function pos2key(pos) {
   return pos[0] + '.' + pos[1];
 };

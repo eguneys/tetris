@@ -8,6 +8,7 @@ export function defaults() {
     rows: rows,
     cols: cols,
     tiles: {},
+    removeRows: [],
     tileSize: 20
   };
 }
