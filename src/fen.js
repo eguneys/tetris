@@ -1,5 +1,8 @@
 import { pos2key } from './util';
 
+export const initialFen = '10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10 i';
+
+
 const colors = { g: 'green', r: 'red', b: 'blue', y: 'yellow' };
 
 const tilePattern = /(g|r|b|y|\d+)/;

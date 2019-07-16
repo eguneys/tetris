@@ -1,8 +1,12 @@
-import { read as fenRead } from './fen';
+import { initialFen, read as fenRead } from './fen';
 import { getShape } from './util';
 
 export function configure(state, config) {
   merge(state, config);
+
+  if (!config.fen) {
+    config.fen = initialFen;
+  }
 
   if (config.fen) {
     const { tiles, next } = fenRead(config.fen);

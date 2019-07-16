@@ -59,7 +59,8 @@ const prodConfig = {
   output: {
     path: path.resolve(__dirname, 'dist') + '/app',
     filename: 'bundle.js',
-    libraryTarget: 'umd'
+    libraryTarget: 'var',
+    library: 'Tetris'
   }
 };
 
