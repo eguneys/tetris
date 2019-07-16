@@ -17,7 +17,7 @@ function renderTile(ctrl, key, tile) {
   }
 
   return h('sprite', {
-    texture: ctrl.data.textures.test,
+    texture: ctrl.data.textures['tile' + tile.color],
     width, height, x, y });
 }
 
@@ -74,9 +74,17 @@ function renderPlayBackground(ctrl) {
   });
 }
 
+function renderScoreBackground(ctrl, width, height) {
+  return h('sprite', {
+    texture: ctrl.data.textures.scoreBackground,
+    width,
+    height
+  });  
+}
+
 function renderPlay(ctrl) {
-  var middle = ctrl.data.width / 2 
-      - ctrl.data.cols * ctrl.data.tileSize / 2;
+  var middle = (ctrl.data.width / 2
+                - (ctrl.data.cols * ctrl.data.tileSize / 2));
   var content = [
     renderPlayBackground(ctrl),
     ...renderTiles(ctrl),
@@ -85,7 +93,42 @@ function renderPlay(ctrl) {
   ];
   return h('container', {
     x: middle,
-    y: ctrl.data.tileSize
+    y: ctrl.data.height - (ctrl.data.rows + 1) * ctrl.data.tileSize
+  }, content);
+}
+
+function renderScoreLabel(ctrl, width, height) {
+  return h('sprite', {
+    texture: ctrl.data.textures['scoreLabel'],
+    width,
+    height,
+    y: - height * 0.1
+  });
+}
+
+function renderScoreNumbers(ctrl, width, height) {
+  return h('number', {
+    number: ctrl.data.score,
+    width,
+    height,
+    y: height * 0.25
+  });  
+}
+
+function renderScore(ctrl) {
+  const width = (ctrl.data.cols - 2) * ctrl.data.tileSize,
+        height = 3 * ctrl.data.tileSize,
+        middle = (ctrl.data.width / 2 -
+                  width / 2);
+  var content = [
+    renderScoreBackground(ctrl, width, height),
+    renderScoreLabel(ctrl, width, height),
+    renderScoreNumbers(ctrl, width, height)
+  ];
+
+  return h('container', {
+    x: middle,
+    y: ctrl.data.tileSize * 0.5,
   }, content);
 }
 
@@ -100,6 +143,7 @@ function renderBackground(ctrl) {
 export default function(ctrl) {
   var content = [
     renderBackground(ctrl),
+    renderScore(ctrl),
     renderPlay(ctrl)
   ];
 

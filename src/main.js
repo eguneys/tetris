@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { init } from './pixi/snabbpixi';
+import { makePixiApi } from './pixi/pixiapi';
+
+import createElement from './custompixi';
 
 import sprites from './sprites';
 
@@ -9,8 +12,6 @@ import { configure } from './config';
 import { defaults } from './state'; 
 import makeCtrl from './ctrl';
 import view from './view';
-
-const patch = init([]);
 
 export function app(element, config) {
   let state = defaults();
@@ -27,7 +28,7 @@ export function app(element, config) {
     .add("")
     .load(() => {
 
-      let vnode, ctrl;
+      let patch, vnode, ctrl;
       
       function redraw() {
         vnode = patch(vnode, view(ctrl));
@@ -39,6 +40,8 @@ export function app(element, config) {
       state.redraw = redraw;
 
       ctrl = new makeCtrl(state, redraw);
+
+      patch = init([], makePixiApi(createElement(ctrl)));
 
       events.bindDocument(ctrl);
 

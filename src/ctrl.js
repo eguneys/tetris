@@ -42,7 +42,8 @@ export default function Controller(state, redraw) {
         return null;
       }
       return {
-        key
+        key,
+        color: shape.color
       };      
     }).filter(_ => !!_);
   };
@@ -365,12 +366,17 @@ export default function Controller(state, redraw) {
     };
   })();
 
+  const maybeUpdateScore = withDelay(() => {
+    this.data.score = (this.data.score+31) % 151;
+  }, 500);
+
   this.update = (delta) => {
     maybeNextBlock();
     maybeFallBlock(delta);
     maybeCommitBlock(delta);
     maybeRemoveBlocks();
     maybeClearRemovedBlocks(delta);
+    maybeUpdateScore(delta);
     maybeUsermove();
   };
 }

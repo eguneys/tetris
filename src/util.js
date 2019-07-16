@@ -43,6 +43,7 @@ export function rotateShape(shape) {
   const rotation = (shape.rotation + 1) % shape.shape.length;
   return {
     shape: shape.shape,
+    color: shape.color,
     rotation
   };
 }
@@ -53,6 +54,7 @@ export function getShape(key) {
   
   return {
     shape,
+    color: colors[key],
     rotation
   };
 }
@@ -72,7 +74,9 @@ function readShape(shape) {
 
 export const randomShapeKey = () => allShapeKeys[Math.floor(Math.random() * allShapeKeys.length)];
 
-export const allShapeKeys = ['l', 'r', 'i', 's', 'o', 't'];
+export const colors = { l: 'blue', r: 'orange', i: 'cyan', s: 'red', z: 'green', o: 'yellow', t: 'purple'  };
+
+export const allShapeKeys = ['l', 'r', 'i', 's', 'z', 'o', 't'];
 
 export const allShapesString = {
   'l': [`
@@ -121,6 +125,14 @@ export const allShapesString = {
 `,`
  ..
 ..
+`],
+  'z': [`
+ .
+..
+.
+`,`
+..
+ ..
 `],
   'o': [`
 ..

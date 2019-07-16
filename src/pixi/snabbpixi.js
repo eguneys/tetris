@@ -39,7 +39,7 @@ export function init(modules, pApi) {
         data = vnode.data;
 
     const tag = sel;
-    const elm = vnode.elm = api.createElement(tag, texture);
+    const elm = vnode.elm = api.createElement(tag, texture, data);
 
     api.setDataContent(elm, data);
 

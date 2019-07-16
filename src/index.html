@@ -5,6 +5,7 @@
     <title>webpack-minimal</title>
     <link rel="shortcut icon" type="image/png" href="../assets/favicon-16x16.png"/>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    
     <style>
           html, body {
          width: 100%;
@@ -24,6 +25,12 @@
          height: 100%;
          background: #202020;
      }
+
+     #app {
+         padding-top: 10px;
+         text-align: center;
+     }
+
     </style>
 </head>
 <body>
@@ -32,15 +39,30 @@
 
   </section>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+
   <script>
 
-   const testFen1 = '10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/8gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
+    WebFont.load({
+      google: {
+      families: ['Roboto']
+      },
+    active:e=>{
+      console.log("font loaded!");
+      init();
+    }
+    });
+
+
+    function init() {
+      const testFen1 = '10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/8gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
 
    Tetris(document.getElementById('app'), {
      fen: testFen1
    });
 
-   Tetris.test();
+      Tetris.test();
+    }
    
   </script>
 

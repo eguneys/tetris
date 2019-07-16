@@ -4,11 +4,11 @@ function createContainer() {
   return new PIXI.Container();
 }
 
-function createSprite(texture) {
+export function createSprite(texture) {
   return new PIXI.Sprite(texture);
 }
 
-function createElement(tag, texture) {
+export function createElement(tag, texture, data) {
   switch (tag) {
   case 'sprite':
     return createSprite(texture);
@@ -48,6 +48,7 @@ function setDataContent(elm, data) {
   if (data.scale) elm.scale.set(data.scale.x, data.scale.y);
   if (data.alpha) elm.alpha = data.alpha;
   if (data.anchor) elm.anchor = data.anchor;
+  if (elm.setData) elm.setData(data);
 }
 
 export const makePixiApi = (createElement) => ({
