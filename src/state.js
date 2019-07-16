@@ -12,6 +12,7 @@ export function defaults() {
     addScore: 0,
     tiles: {},
     removeRows: [],
-    tileSize: 20
+    tileSize: 20,
+    events: {}
   };
 }

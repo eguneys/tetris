@@ -172,3 +172,8 @@ export const allShapes = (function() {
   }
   return res;
 })();
+
+
+export const callUserFunction = (fn) => {
+  if (fn) setTimeout(fn, 0);
+};

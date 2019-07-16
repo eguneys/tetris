@@ -10,14 +10,26 @@ import sprites from './sprites';
 
 import * as events from './events';
 
+import start from './api';
+
 import { configure } from './config';
 import { defaults } from './state'; 
 import makeCtrl from './ctrl';
 import view from './view';
 
+import * as util from './util';
+
 export function app(element, config) {
   let state = defaults();
   configure(state, config || {});
+
+  let patch, vnode, ctrl;
+  
+  function redraw() {
+    vnode = patch(vnode, view(ctrl));
+  }
+
+  ctrl = new makeCtrl(state, redraw);
 
   const app = new PIXI.Application({
     width: state.width,
@@ -30,18 +42,10 @@ export function app(element, config) {
     .add("")
     .load(() => {
 
-      let patch, vnode, ctrl;
-      
-      function redraw() {
-        vnode = patch(vnode, view(ctrl));
-      }
-
       const textures = sprites();
 
       state.textures = textures;
       state.redraw = redraw;
-
-      ctrl = new makeCtrl(state, redraw);
 
       patch = init([], makePixiApi(createElement(ctrl)));
 
@@ -73,5 +77,9 @@ export function app(element, config) {
         ctrl.update(delta);
         redraw();
       });
+
+      util.callUserFunction(state.events.loaded);
     });
+
+  return start(ctrl, redraw);
 }
