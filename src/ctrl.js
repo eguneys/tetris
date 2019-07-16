@@ -1,4 +1,4 @@
-import { key2pos, pos2key, getShape, rotateShape, shapeToPosMap, randomShapeKey } from './util';
+import { key2pos, pos2key, getShape, unrotateShape, rotateShape, shapeToPosMap, randomShapeKey } from './util';
 
 import * as util from './util';
 
@@ -58,15 +58,12 @@ export default function Controller(state, redraw) {
   };
 
   this.nextBlock = () => {
-    if (!this.data.next) {
-      this.data.next = randomShapeKey();
-    }
-
     const top = -2;
     const middle = this.data.cols / 2 - 2;
-    const shape = getShape(this.data.next);
+    const shape = this.data.next;
 
-    this.data.next = undefined;
+    this.data.next = getShape(randomShapeKey());
+
     this.data.current = {
       shape,
       x: middle,
@@ -77,8 +74,35 @@ export default function Controller(state, redraw) {
     placeBlock();
   };
 
+  const ensureDelay = (start, fn, delay = 1000) => {
+    if (now() - start > delay) {
+      fn();
+    }
+  };
+
   this.move = (move) => {
-    this.userMove = move;
+    if (this.data.gameover > 0) {
+      ensureDelay(this.data.gameover, () => {
+        this.shouldResetGame = true;
+      });
+    } else {
+      this.userMove = move;
+    }
+  };
+
+  this.resetGame = () => {
+    this.data.tiles = {};
+    this.data.level = 1;
+    this.data.score = 0;
+    this.data.current = undefined;
+    this.data.next = getShape(randomShapeKey());
+    this.data.gameover = 0;
+  };
+
+  this.getSpeed = () => {
+    const levelFactor = 1;
+
+    return this.data.speed / (this.data.level * levelFactor);
   };
 
   const checkCollision = () => {
@@ -123,7 +147,13 @@ export default function Controller(state, redraw) {
 
   const rotateBlockBase = () => {
     this.data.current.shape = rotateShape(this.data.current.shape);
+    tmpCommitBlock = this.commitBlock;
     this.commitBlock = false;
+  };
+
+  const undoRotateBlockBase = () => {
+    this.data.current.shape = unrotateShape(this.data.current.shape);
+    this.commitBlock = tmpCommitBlock;
   };
 
   const rotateBlock = () => {
@@ -171,20 +201,32 @@ export default function Controller(state, redraw) {
         if (fixed) break;
       }
 
+      // if (!fixed) {
+      //   throw new Error("invalid rotate collision");
+      // }
       if (!fixed) {
-        throw new Error("invalid rotate collision");
+        console.log('here');
+        this.data.current.rotateY = 0;
+        this.data.current.rotateX = 0;
+        undoRotateBlockBase();
+        placeBlock();
       }
     }
   };
 
+  let tmpCommitBlock;
+
   const moveBlockBase = (v) => {
     this.data.current.x += v[0];
     this.data.current.y += v[1];
+    tmpCommitBlock = this.commitBlock;
+    this.commitBlock = false;
   };
 
   const undoMoveBlockBase = (v) => {
     this.data.current.x -= v[0];
     this.data.current.y -= v[1];
+    this.commitBlock = tmpCommitBlock;
   };
 
   const moveBlock = (v) => {
@@ -206,13 +248,17 @@ export default function Controller(state, redraw) {
     moveBlockBase([0, 1]);
     placeBlock();
     if (checkCollision()) {
-      this.commitBlock = true;
+      tmpCommitBlock = true;
     }
     undoMoveBlockBase([0, 1]);
     placeBlock();
   };
 
   const commitBlock = () => {
+    if (this.data.current.tiles.length === 0) {
+      this.data.gameover = now();
+    }
+
     for (var tile of this.data.current.tiles) {
       this.data.tiles[tile.key] = tile;
     }
@@ -294,8 +340,18 @@ export default function Controller(state, redraw) {
     };
   };
 
-  const maybeFallBlock = withDelay(fallBlock,
-                                   1000 * this.data.speed);
+  const maybeFallBlock = (() => {
+    let lastSpeed = this.getSpeed();
+    let delayFn;
+    return (delta) => {
+      if (!delayFn || lastSpeed !== this.getSpeed()) {
+        lastSpeed = this.getSpeed();
+        delayFn = withDelay(fallBlock,
+                            1000 * lastSpeed);
+      }
+      delayFn(delta);
+    };
+  })();
 
   const maybeCommitBlock = (() => {
     let commitFn;
@@ -303,7 +359,7 @@ export default function Controller(state, redraw) {
     return (delta) => {
       if (this.commitBlock) {
         if (!commitFn) {
-          commitFn = withDelay(commitBlock, 300);
+          commitFn = withDelay(commitBlock, 500);
         }
         return commitFn(delta);
       } else {
@@ -316,6 +372,7 @@ export default function Controller(state, redraw) {
   const maybeNextBlock = () => {
     if (this.data.current) {
     } else {
+      this.data.addScore += 5;
       this.nextBlock();
     }
   };
@@ -356,6 +413,8 @@ export default function Controller(state, redraw) {
             for (var key of Object.keys(this.data.tiles)) {
               delete this.data.tiles[key].anim;
             }
+ 
+            this.data.addScore += this.data.removeRows.length * 10;
             this.data.removeRows = [];
           }, 300, (progress) => {
             this.animProgress = progress;
@@ -367,16 +426,44 @@ export default function Controller(state, redraw) {
   })();
 
   const maybeUpdateScore = withDelay(() => {
-    this.data.score = (this.data.score+31) % 151;
+    this.data.score += this.data.addScore;
+    this.data.addScore = 0;
   }, 500);
 
-  this.update = (delta) => {
+  const maybeUpdateLevel = withDelay(() => {
+    this.data.level++;
+  }, 5000);
+
+  const maybeEndGame = () => {
+    if (this.data.gameover > 0) {
+      console.log('game over');
+    }
+  };
+
+  const maybeResetGame = () => {
+    if (this.shouldResetGame) {
+      this.shouldResetGame = false;
+      this.resetGame();
+    }
+  };
+
+  const maybePlayGame = (delta) => {
     maybeNextBlock();
     maybeFallBlock(delta);
     maybeCommitBlock(delta);
     maybeRemoveBlocks();
     maybeClearRemovedBlocks(delta);
+    maybeUpdateLevel(delta);
     maybeUpdateScore(delta);
+    maybeEndGame();
     maybeUsermove();
+  };
+
+  this.update = (delta) => {
+    if (this.data.gameover > 0) {
+      maybeResetGame(delta);
+    } else {
+      maybePlayGame(delta);
+    }
   };
 }

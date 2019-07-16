@@ -7,7 +7,9 @@ export function defaults() {
     height: 500,
     rows: rows,
     cols: cols,
+    level: 1,
     score: 0,
+    addScore: 0,
     tiles: {},
     removeRows: [],
     tileSize: 20

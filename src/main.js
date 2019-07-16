@@ -4,6 +4,8 @@ import { makePixiApi } from './pixi/pixiapi';
 
 import createElement from './custompixi';
 
+import NumberSprite from './asprite';
+
 import sprites from './sprites';
 
 import * as events from './events';

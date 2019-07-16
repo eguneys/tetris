@@ -18,7 +18,7 @@ export default function sprites() {
     tss['tile' + color] = tileTexture(colors[color]);
   });
 
-  tss['background'] = bgTexture('#ccc');
+  tss['background'] = bgTexture('#1f3a93');
 
   tss['playBackground'] = bgTexture('#444');
 
@@ -27,19 +27,23 @@ export default function sprites() {
   tss['whiteBackground'] = bgTexture('#fff');
 
   tss['scoreLabel'] = labelTexture('SCORE');
+  tss['nextLabel'] = labelTexture('NEXT');
+  tss['levelLabel'] = labelTexture('LEVEL');
+  tss['highScoreLabel'] = labelTexture('HIGH SCORE');
+  tss['playAgainText'] = labelTexture('Press Up to play again.');
 
   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(no =>
-    tss['number' + no] = labelTexture(no)
+    tss['number' + no] = labelTexture(no + '')
   );
 
   return tss;
 }
 
 const labelTexture = (label) => {
-  return withCanvasTexture(256, 100, (w, h, canvas, ctx) => {
+  return withCanvasTexture(label.length * 100 * 0.5, 100, (w, h, canvas, ctx) => {
     // ctx.fillStyle = 'black';
     // ctx.fillRect(0, 0, w, h);
-    ctx.font = '20pt Roboto';
+    ctx.font = '50pt Roboto';
     ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';

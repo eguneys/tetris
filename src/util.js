@@ -48,6 +48,15 @@ export function rotateShape(shape) {
   };
 }
 
+export function unrotateShape(shape) {
+  const rotation = (shape.rotation - 1 + shape.shape.length) % shape.shape.length;
+  return {
+    shape: shape.shape,
+    color: shape.color,
+    rotation
+  };
+}
+
 export function getShape(key) {
   const shape = allShapes[key];
   const rotation = 0;

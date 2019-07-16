@@ -47,8 +47,7 @@ export default class NumberSprite extends PIXI.Container {
     ];
 
     this.sprites.forEach((_, i) => {
-      _.alpha = 0;
-      _.x = (this.sprites.length-i) * 20;
+      _.x = (this.sprites.length-i) * 38;
       this.addChild(_);
     });
 
