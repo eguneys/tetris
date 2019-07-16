@@ -1,4 +1,4 @@
-import { createSprite, createElement as defaultCreateElement } from './pixi/pixiapi';
+import { createSprite, createElement as defaultCreateElement } from 'snabbpixi/pixiapi';
 
 import NumberSprite from './asprite.js';
 

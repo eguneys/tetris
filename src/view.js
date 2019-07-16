@@ -1,4 +1,4 @@
-import { h } from './pixi/snabbpixi';
+import { h } from 'snabbpixi';
 
 import { render as renderGameOver } from './view/over';
 import { render as renderGamePlay } from './view/play';

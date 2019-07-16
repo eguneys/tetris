@@ -1,4 +1,4 @@
-import { h } from '../pixi/snabbpixi';
+import { h } from 'snabbpixi';
 
 import { pos2key, key2pos } from '../util';
 

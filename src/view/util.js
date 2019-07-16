@@ -1,4 +1,4 @@
-import { h } from '../pixi/snabbpixi';
+import { h } from 'snabbpixi';
 
 export function renderBackground(ctrl) {
   return h('sprite', {

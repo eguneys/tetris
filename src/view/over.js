@@ -1,4 +1,4 @@
-import { h } from '../pixi/snabbpixi';
+import { h } from 'snabbpixi';
 
 import { renderBackground } from './util';
 

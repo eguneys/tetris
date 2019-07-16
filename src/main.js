@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { init } from './pixi/snabbpixi';
-import { makePixiApi } from './pixi/pixiapi';
+import { init } from 'snabbpixi';
+import { makePixiApi } from 'snabbpixi/pixiapi';
 
 import createElement from './custompixi';
 

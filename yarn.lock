@@ -4733,6 +4733,13 @@ signal-exit@^3.0.0:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
+snabbpixi@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/snabbpixi/-/snabbpixi-1.0.2.tgz#c79462b3c9baea3f19c6a5a64268606ccca9a22f"
+  integrity sha512-091biJqifYNg81poCoZ4/A8N2a9IRjIAcoZe0SBkA045Mz2FtMPuqS9yuKO7uJCcCfarRi5Cbchi6Dg8s9FYfA==
+  dependencies:
+    pixi.js "^5.0.4"
+
 snapdragon-node@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/snapdragon-node/-/snapdragon-node-2.1.1.tgz#6c175f86ff14bdb0724563e8f3c1b021a286853b"
